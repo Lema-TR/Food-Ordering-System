@@ -238,6 +238,7 @@
         android:background="@color/white"
         android:elevation="8dp"
         app:elevation="8dp"
+        app:itemIconSize="24dp"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
         app:labelVisibilityMode="labeled"

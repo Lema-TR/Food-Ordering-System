@@ -1,4 +1,4 @@
-package com.example.food_ordering_system
+package com.example.food_ordering_system.Activity
 
 import android.os.Bundle
 import android.widget.Button
@@ -7,6 +7,7 @@ import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.food_ordering_system.R
 import java.text.NumberFormat
 import java.util.Locale
 
