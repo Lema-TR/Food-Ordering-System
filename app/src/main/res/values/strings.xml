@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Food Ordering System</string>
+    <string name="next">Next</string>
+    <string name="slogan1">Bringing Flavor to Your Doorstep.</string>
+    <string name="slogan2">Fresh Food, Fast Delivery</string>
+    <string name="google">Google</string>
+    <string name="facebook">Facebook</string>
+    <string name="plus_sign">+</string>
+    <string name="time_length">15 min</string>
+    <string name="rating_number">4.5</string>
+    <string name="price_value">$99.99</string>
+    <string name="item_title">Item Title</string>
+
+    <string-array name="location_array">
+        <item>Addis Ababa</item>
+        <item>Adama</item>
+        <item>Bahir Dar</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="6dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Image -->
+        <ImageView
+            android:id="@+id/item_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher_background"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/item_title"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/item_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_price"
+            app:layout_constraintHorizontal_bias="0" />
+
+        <!-- Price -->
+        <TextView
+            android:id="@+id/tv_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/price_value"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/red"
+            app:layout_constraintTop_toTopOf="@id/tv_title"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Rating -->
+        <TextView
+            android:id="@+id/tv_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/rating_number"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/rating_star"
+            android:layout_width="16dp"
+            android:layout_height="19dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_star"
+            app:layout_constraintTop_toTopOf="@id/tv_rating"
+            app:layout_constraintStart_toEndOf="@id/tv_rating"
+            app:tint="#FFFF00" />
+
+        <!-- Time -->
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/time_length"
+            android:textSize="14sp"
+            app:layout_constraintTop_toTopOf="@id/tv_rating"
+            app:layout_constraintStart_toEndOf="@id/rating_star" />
+
+        <ImageView
+            android:id="@+id/ic_time"
+            android:layout_width="16dp"
+            android:layout_height="19dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_time"
+            app:layout_constraintTop_toTopOf="@id/tv_time"
+            app:layout_constraintStart_toEndOf="@id/tv_time" />
+
+        <!-- Plus Icon -->
+        <TextView
+            android:id="@+id/tv_add"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/plus_background"
+            android:gravity="center"
+            android:text="@string/plus_sign"
+            app:layout_constraintTop_toTopOf="@id/tv_rating"
+            app:layout_constraintBottom_toBottomOf="@id/tv_rating"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

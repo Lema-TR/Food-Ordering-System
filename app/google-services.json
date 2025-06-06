@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "770074703440",
+    "firebase_url": "https://food-ordering-system-d75fd-default-rtdb.firebaseio.com",
+    "project_id": "food-ordering-system-d75fd",
+    "storage_bucket": "food-ordering-system-d75fd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:770074703440:android:c06afb99cab33a4e5b0355",
+        "android_client_info": {
+          "package_name": "com.example.food_ordering_system"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKYAjWUiz9g0zPK6FPqblk5E2odFBw3kA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
