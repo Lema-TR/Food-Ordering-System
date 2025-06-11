@@ -53,9 +53,9 @@ class CategoryAdapter(
     override fun getItemCount(): Int = items.size
 
 
-//    fun updateItems(newItems: List<Category>) {
-//        items.clear()
-//        items.addAll(newItems)
-//        notifyDataSetChanged()
-//    }
+    fun updateItems(newItems: List<Category>) {
+        items.clear()
+        items.addAll(newItems)
+        notifyDataSetChanged()
+    }
 }

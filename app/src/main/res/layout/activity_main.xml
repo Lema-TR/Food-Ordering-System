@@ -203,7 +203,7 @@
                 app:layout_constraintTop_toBottomOf="@id/bestFoodView" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/categoryView"
+                android:id="@+id/categoryRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -211,20 +211,21 @@
                 android:orientation="horizontal"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="3"
                 app:layout_constraintTop_toBottomOf="@id/categoriesTitle"
-                tools:itemCount="5"
-                tools:listitem="@layout/viewholder_category" />
+                tools:itemCount="6"
+                tools:listitem="@layout/item_category_card" />
 
             <ProgressBar
-                android:id="@+id/progressBar5"
+                android:id="@+id/categoryProgressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:layout_constraintTop_toTopOf="@id/categoryView"
-                app:layout_constraintBottom_toBottomOf="@id/categoryView"
-                app:layout_constraintStart_toStartOf="@id/categoryView"
-                app:layout_constraintEnd_toEndOf="@id/categoryView" />
+                app:layout_constraintTop_toTopOf="@id/categoryRecyclerView"
+                app:layout_constraintBottom_toBottomOf="@id/categoryRecyclerView"
+                app:layout_constraintStart_toStartOf="@id/categoryRecyclerView"
+                app:layout_constraintEnd_toEndOf="@id/categoryRecyclerView" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

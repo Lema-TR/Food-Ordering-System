@@ -1,4 +1,4 @@
-package com.example.food_ordering_system.Activity
+package com.example.food_ordering_system.Domain
 
 
 data class User(

@@ -11,7 +11,7 @@ data class Foods (
          var priceID: Int = 0,
          var star: Double = 0.0,
          var TimeId: Int = 0,
-         var TimeValue: String = "",
+         var Timevalue: String = "",
          var Title: String = ""
         // var numberInCart: Int
 )
