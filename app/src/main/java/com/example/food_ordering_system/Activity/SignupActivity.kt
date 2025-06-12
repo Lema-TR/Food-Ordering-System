@@ -1,5 +1,6 @@
 package com.example.food_ordering_system.Activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -31,6 +32,9 @@ class SignupActivity : AppCompatActivity() {
 
         setVariable()
 
+        binding.tvLogin.setOnClickListener()  {
+            startActivity(Intent(this@SignupActivity,LoginActivity::class.java))
+        }
     }
 
     private fun setVariable() {

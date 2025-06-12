@@ -23,8 +23,12 @@ class LoginActivity : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.light_pink)
 
         firebaseAuth = FirebaseAuth.getInstance()
-
         setVariable()
+        binding.tvSignup.setOnClickListener() {
+            startActivity(Intent(this@LoginActivity,SignupActivity::class.java))
+        }
+
+
     }
 
     private fun setVariable() {
