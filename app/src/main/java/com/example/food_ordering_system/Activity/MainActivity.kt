@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cloudinary.android.MediaManager
 import com.example.food_ordering_system.Adapter.BestFoodAdapter
 import com.example.food_ordering_system.Adapter.CategoryAdapter
+import com.example.food_ordering_system.Domain.Cart
 import com.example.food_ordering_system.Domain.CartItem
 import com.example.food_ordering_system.Domain.Category
 import com.example.food_ordering_system.Domain.Foods
@@ -69,8 +70,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.navigation_orders -> {
-                   // navigate to orders
-                    Toast.makeText(this, "Orders coming soon!", Toast.LENGTH_SHORT).show()
+                   // navigate to cart
+                    startActivity(Intent(this@MainActivity, CartActivity::class.java))
                     false
                 }
 
