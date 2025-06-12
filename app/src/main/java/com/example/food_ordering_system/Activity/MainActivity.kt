@@ -47,14 +47,14 @@ class MainActivity : AppCompatActivity() {
 
         setupBottomNavigation()
         setupSearchAndFilter()
-//        loadLocationAndTimeData()
+
 
         setupBestFoodRecyclerView()
         setupCategoryRecyclerView()
     }
 
 
-
+  // function for navigation
     private fun setupBottomNavigation() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.navigation_orders -> {
-                    // TODO: Implement orders activity
+                   // navigate to orders
                     Toast.makeText(this, "Orders coming soon!", Toast.LENGTH_SHORT).show()
                     false
                 }
@@ -79,24 +79,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupSearchAndFilter() {
-        // Filter button click
-//        binding.filterBtn.setOnClickListener {
-//            // TODO: Implement filter functionality
-//            Toast.makeText(this, "Filter clicked", Toast.LENGTH_SHORT).show()
-//        }
+    // search  function
 
-        // Cart button click
+    private fun setupSearchAndFilter() {
         binding.cartBtn.setOnClickListener {
-            // TODO: Implement cart functionality
-            Toast.makeText(this, "Cart clicked", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, CartActivity::class.java)
+            startActivity(intent)
         }
 
         // Search functionality
         binding.searchContainer.editText?.setOnEditorActionListener { _, _, _ ->
             val searchQuery = binding.searchContainer.editText?.text.toString()
             if (searchQuery.isNotEmpty()) {
-                // TODO: Implement search functionality
                 Toast.makeText(this, "Searching for: $searchQuery", Toast.LENGTH_SHORT).show()
             }
             true
@@ -111,12 +105,14 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    //  function for handling bestfood
+
     private fun setupBestFoodRecyclerView() {
         val foodObjects = mutableListOf<Foods>()
         val database = FirebaseDatabase.getInstance()
         val foodRef = database.getReference("Foods")
 
-        // Initialize adapter with click listeners
+        // initialize the adapter and send data to productDetailActivity
         val adapter = BestFoodAdapter(
             foodObjects,
             onItemClick = { food ->
@@ -131,12 +127,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
             },
+            // handle how a best food added to cart
             onAddToCartClick = { food ->
-//                val database = FirebaseDatabase.getInstance()
-//                val cartRef = database.getReference("Cart") // Reference to "Cart" node
-//                val cartItem = CartItem(food.Title, food.price, 1, food.price)
-//
-//                cartRef.push().setValue(cartItem)
+
                 val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@BestFoodAdapter
                 val cartRef = FirebaseDatabase.getInstance().getReference("Cart")
 
@@ -152,11 +145,12 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         override fun onCancelled(error: DatabaseError) {
-                            Log.e("CartQuery", "Error: ${error.message}")
+                            Toast.makeText(this@MainActivity,"Database error :${error.message}",Toast.LENGTH_SHORT).show()
                         }
                     })
             }
         )
+
 
         binding.bestFoodView.apply {
             this.adapter = adapter
@@ -204,36 +198,59 @@ class MainActivity : AppCompatActivity() {
     private fun updateCartItemsByCartId(cartId: Int, food: Foods) {
         val cartItemRef = FirebaseDatabase.getInstance().getReference("CartItem")
 
-        cartItemRef.orderByChild("cartId").equalTo(cartId.toDouble()) // match Firebase's internal double representation
+        cartItemRef.orderByChild("cartId").equalTo(cartId.toDouble())
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    var nodeKey = ""
-                    var cartItem : CartItem? = null
+                    var existingItem: CartItem? = null
+                    var existingItemKey: String? = null
+                    
                     for (cartItemSnapshot in snapshot.children) {
-                        cartItem = cartItemSnapshot.getValue(CartItem::class.java)
+                        val cartItem = cartItemSnapshot.getValue(CartItem::class.java)
                         if (cartItem?.foodId == food.Id) {
-                            nodeKey = cartItemSnapshot.key.toString()
+                            existingItem = cartItem
+                            existingItemKey = cartItemSnapshot.key
                             break
                         }
                     }
-                    if (cartItem?.foodId == food.Id) {
-                        Toast.makeText(this@MainActivity, "Food is already in the cart", Toast.LENGTH_LONG).show()
-                    }
-                    else {
-                        // initialize the new cart item
-//                        val safeNodeKey = nodeKey.toIntOrNull() ?: 0
-                        val newCartItem = CartItem(nodeKey, cartId, food.Id, 1, food.price, food.price, food.Title)
+
+                    if (existingItem != null) {
+                        // Update quantity and total price if item exists
+                        val newQuantity = existingItem.quantity + 1 // Since we're adding from list, increment by 1
+                        val updates = mapOf(
+                            "quantity" to newQuantity,
+                            "totalPrice" to (food.price * newQuantity)
+                        )
+                        existingItemKey?.let { key ->
+                            cartItemRef.child(key).updateChildren(updates)
+                            Toast.makeText(this@MainActivity, "Item quantity updated in cart", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        // Create new cart item
+                        val newCartItem = CartItem(
+                            cartId = cartId,
+                            foodId = food.Id,
+                            quantity = 1,
+                            price = food.price,
+                            totalPrice = food.price,
+                            title = food.Title
+                        )
                         cartItemRef.push().setValue(newCartItem)
-                        Toast.makeText(this@MainActivity, "Food added to cart", Toast.LENGTH_SHORT).show()
+                            .addOnSuccessListener {
+                                Toast.makeText(this@MainActivity, "Item added to cart", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this@MainActivity, "Failed to add item: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("CartItemQuery", "Error: ${error.message}")
+                    Toast.makeText(this@MainActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             })
     }
 
+    // function for setting choose category
 
     private fun setupCategoryRecyclerView() {
         val categoryObjects = mutableListOf<Category>()
@@ -266,8 +283,8 @@ class MainActivity : AppCompatActivity() {
                         categoryObjects.add(category)
                     }
                 }
-
-                adapter.notifyDataSetChanged() // Notify adapter that data changed
+                // Notify adapter that data changed
+                adapter.notifyDataSetChanged()
                 binding.progressBar.visibility = android.view.View.GONE
             }
 
@@ -282,118 +299,4 @@ class MainActivity : AppCompatActivity() {
         })
     }
 }
-//
-//    private fun setupCategoryRecyclerView() {
-//        val adapter = CategoryAdapter(mutableListOf()) { category ->
-//            // Handle category click
-//            val intent = Intent(this, FoodListActivity::class.java).apply {
-//                putExtra("CATEGORY_ID", category.id)
-//            }
-//            startActivity(intent)
-//        }
-//
-//        binding.categoryRecyclerView.apply {
-//            this.adapter = adapter
-//            layoutManager = GridLayoutManager(this@MainActivity, 3)
-//        }
-//
-//        // Load categories from Firebase
-//        binding.categoryProgressBar.visibility = View.VISIBLE
-//        val database = FirebaseDatabase.getInstance()
-//        val categoryRef = database.getReference("Categories")
-//
-//        categoryRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-//                val categoryList = mutableListOf<Category>()
-//                for (categorySnapshot in snapshot.children) {
-//                    val category = categorySnapshot.getValue(Category::class.java)
-//                    if (category != null) {
-//                        categoryList.add(category)
-//                    }
-//                }
-//                adapter.updateItems(categoryList)
-//                binding.categoryProgressBar.visibility = View.GONE
-//            }
-//
-//            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
-//                binding.categoryProgressBar.visibility = View.GONE
-//                Toast.makeText(
-//                    this@MainActivity,
-//                    "Failed to load categories: ${error.message}",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        })
-//    }
-//}
-
-//    private fun loadLocationAndTimeData() {
-//        val database = FirebaseDatabase.getInstance()
-//        val locationRef = database.getReference("Location")
-//        val timeRef = database.getReference("Time")
-//
-//        // Location data
-//        locationRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-//                val locationList = mutableListOf<String>()
-//                val locationObjects = mutableListOf<Location>()
-//
-//                for (locationSnapshot in snapshot.children) {
-//                    val location = locationSnapshot.getValue(Location::class.java)
-//                    if (location != null) {
-//                        locationObjects.add(location)
-//                        locationList.add(location.location)
-//                    }
-//                }
-//
-//                val adapter = ArrayAdapter(
-//                    this@MainActivity,
-//                    R.layout.spinner_item,
-//                    locationList
-//                )
-//                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//                (binding.locationSpinnerLayout.editText as? android.widget.AutoCompleteTextView)?.setAdapter(adapter)
-//            }
-//
-//            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
-//                Toast.makeText(
-//                    this@MainActivity,
-//                    "Failed to load locations: ${error.message}",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        })
-//
-//        // Time data
-//        timeRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-//                val timeList = mutableListOf<String>()
-//                val timeObjects = mutableListOf<Time>()
-//
-//                for (timeSnapshot in snapshot.children) {
-//                    val time = timeSnapshot.getValue(Time::class.java)
-//                    if (time != null) {
-//                        timeObjects.add(time)
-//                        timeList.add(time.Timevalue)
-//                    }
-//                }
-//
-//                val adapter = ArrayAdapter(
-//                    this@MainActivity,
-//                    R.layout.spinner_item,
-//                    timeList
-//                )
-//                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//                (binding.timeSpinnerLayout.editText as? android.widget.AutoCompleteTextView)?.setAdapter(adapter)
-//            }
-//
-//            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
-//                Toast.makeText(
-//                    this@MainActivity,
-//                    "Failed to load times: ${error.message}",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        })
-//    }
 

@@ -29,20 +29,16 @@ class BestFoodAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         with(holder.binding) {
-            // Set title with ellipsis
-            tvTitle.text = item.Title
-            
 
+            tvTitle.text = item.Title
             tvPrice.text = item.price.toString()
-            
-            // Set rating with count (placeholder for now)
             tvRating.text = String.format("%.1f", item.star)
             tvRatingCount.text = "(200)" // I will implement the logic here
             
-            // Set time
+
             tvTime.text = "${item.Timevalue} "
             
-            // Load image with rounded corners
+
             Glide.with(foodImage.context)
                 .load(item.imagepath)
                 .apply(

@@ -14,6 +14,9 @@ import com.example.food_ordering_system.Adapter.FoodListAdapter
 import com.example.food_ordering_system.Domain.CartItem
 import com.example.food_ordering_system.Domain.Foods
 import com.example.food_ordering_system.databinding.ActivityFoodListBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
@@ -29,7 +32,7 @@ class FoodListActivity : AppCompatActivity() {
         binding = ActivityFoodListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Log.d("foodListLog", "before adapter")
+
         // Initialize adapter early with empty list
         adapter = FoodListAdapter(foodObjects, onItemClick = { food ->
             val intent = Intent(this@FoodListActivity, FoodDetailActivity::class.java).apply {
@@ -38,17 +41,34 @@ class FoodListActivity : AppCompatActivity() {
                 putExtra("FOOD_PRICE", food.price)
                 putExtra("FOOD_IMAGE", food.imagepath)
                 putExtra("FOOD_RATING", food.star.toString())
-                putExtra("FOOD_TIME",food.Timevalue)
-
+                putExtra("FOOD_TIME", food.Timevalue)
+                putExtra("FOOD_ID", food.Id)
             }
             startActivity(intent)
         },
             onAddToCartClick= { food ->
-//                val database = FirebaseDatabase.getInstance()
-//                val cartRef = database.getReference("Cart") // Reference to "Cart" node
-//                val cartItem = CartItem(food.Title, food.price, 1, food.price)
-//
-//                cartRef.push().setValue(cartItem)
+                val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@FoodListAdapter
+                val cartRef = FirebaseDatabase.getInstance().getReference("Cart")
+
+                cartRef.orderByChild("userId").equalTo(userId)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            for (cartSnapshot in snapshot.children) {
+                                val cartId = cartSnapshot.child("cartId").getValue(Int::class.java) ?: continue
+                                Log.d("itemLog", "cartId retrieved")
+                                // Now we can use this cartId to query the CartItem node
+                                updateCartItemsByCartId(cartId, food)
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("CartQuery", "Error: ${error.message}")
+                        }
+                    })
+
+
+
+
 
         })
 
@@ -59,7 +79,7 @@ class FoodListActivity : AppCompatActivity() {
         categoryId = intent.getIntExtra("id", 0)
         binding.progressBar.visibility = View.VISIBLE
         setupToolbar()
-        Log.d("foodListLog", "before loadFoodData()")
+
 
         loadFoodData()
     }
@@ -71,13 +91,12 @@ class FoodListActivity : AppCompatActivity() {
         foodRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                 foodObjects.clear() // Clear existing data
-                Log.d("foodListLog","before loop")
+
                 for (foodsnapshot in snapshot.children) {
-                    Log.d("foodListLog","inside loop")
                     val food = foodsnapshot.getValue(Foods::class.java)
                     if (food != null && food.CategoryID == categoryId) {
                         foodObjects.add(food)
-                        Log.d("foodListLog", "Food: ${food?.Title}, Category: ${food?.CategoryID}")
+
                     }
                 }
 
@@ -114,4 +133,61 @@ class FoodListActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+    private fun updateCartItemsByCartId(cartId: Int, food: Foods) {
+        val cartItemRef = FirebaseDatabase.getInstance().getReference("CartItem")
+
+        cartItemRef.orderByChild("cartId").equalTo(cartId.toDouble())
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    var existingItem: CartItem? = null
+                    var existingItemKey: String? = null
+                    
+                    for (cartItemSnapshot in snapshot.children) {
+                        val cartItem = cartItemSnapshot.getValue(CartItem::class.java)
+                        if (cartItem?.foodId == food.Id) {
+                            existingItem = cartItem
+                            existingItemKey = cartItemSnapshot.key
+                            break
+                        }
+                    }
+
+                    if (existingItem != null) {
+                        // Update quantity and total price if item exists
+                        val newQuantity = existingItem.quantity + 1 // Since we're adding from list, increment by 1
+                        val updates = mapOf(
+                            "quantity" to newQuantity,
+                            "totalPrice" to (food.price * newQuantity)
+                        )
+                        existingItemKey?.let { key ->
+                            cartItemRef.child(key).updateChildren(updates)
+                            Toast.makeText(this@FoodListActivity, "Item quantity updated in cart", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        // Create new cart item
+                        val newCartItem = CartItem(
+                            cartId = cartId,
+                            foodId = food.Id,
+                            quantity = 1,
+                            price = food.price,
+                            totalPrice = food.price,
+                            title = food.Title
+                        )
+                        cartItemRef.push().setValue(newCartItem)
+                            .addOnSuccessListener {
+                                Toast.makeText(this@FoodListActivity, "Item added to cart", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this@FoodListActivity, "Failed to add item: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(this@FoodListActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+
 }
