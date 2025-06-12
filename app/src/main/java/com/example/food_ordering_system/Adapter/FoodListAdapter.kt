@@ -35,7 +35,7 @@ class FoodListAdapter(
         val item = items[position]
         with(holder.binding) {
             tvTitle.text = item.Title
-            tvPrice.text = formatPrice(item.price)
+            tvPrice.text = item.price.toString()
             tvRating.text = item.star.toString()
 
             Glide.with(itemImage.context)
